@@ -11,14 +11,8 @@ class TPLB_Init {
     }
 
     public function __construct() {
-        $this->define_constants();
         $this->includes();
         add_action('init', [$this, 'init_hooks']);
-    }
-
-    private function define_constants() {
-        define('TPLB_PLUGIN_PATH', plugin_dir_path(__FILE__));
-        define('TPLB_PLUGIN_URL', plugin_dir_url(__FILE__));
     }
 
     private function includes() {

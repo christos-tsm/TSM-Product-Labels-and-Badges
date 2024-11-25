@@ -29,11 +29,7 @@ class TPLB_Admin {
     }
 
     public function render_admin_page() {
-        echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Product Labels & Badges', 'tplb') . '</h1>';
-        echo '<p>' . esc_html__('Manage your product labels and badges here.', 'tplb') . '</p>';
-        // Admin UI will be built here
-        echo '</div>';
+        require_once TPLB_PLUGIN_PATH . 'admin/admin-page.tpl.php';
     }
 
     public function enqueue_admin_assets($hook) {
