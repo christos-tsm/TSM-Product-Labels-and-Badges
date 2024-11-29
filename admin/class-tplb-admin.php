@@ -55,9 +55,14 @@ class TPLB_Admin {
      * @since 1.0.0
      */
     public function register_settings() {
-        // Register the badge display option
+        // Register general settings
         register_setting('tplb_settings', 'tplb_badge_display_option');
+        register_setting('tplb_settings', 'tplb_default_badge_text');
+        register_setting('tplb_settings', 'tplb_default_badge_colors');
+
+        // Register category-specific settings
         register_setting('tplb_settings', 'tplb_category_badge_texts');
+        register_setting('tplb_settings', 'tplb_category_badge_colors');
 
         add_settings_section(
             'tplb_general_settings',
@@ -66,10 +71,28 @@ class TPLB_Admin {
             'tplb'
         );
 
+        // Badge display option
         add_settings_field(
             'tplb_badge_display_option',
             __('Badge Display Option', 'tplb'),
             [$this, 'badge_display_option_callback'],
+            'tplb',
+            'tplb_general_settings'
+        );
+
+        // Default badge text and colors
+        add_settings_field(
+            'tplb_default_badge_text',
+            __('Default Badge Text', 'tplb'),
+            [$this, 'default_badge_text_callback'],
+            'tplb',
+            'tplb_general_settings'
+        );
+
+        add_settings_field(
+            'tplb_default_badge_colors',
+            __('Default Badge Colors', 'tplb'),
+            [$this, 'default_badge_colors_callback'],
             'tplb',
             'tplb_general_settings'
         );
@@ -81,6 +104,16 @@ class TPLB_Admin {
                 sprintf(__('Default Badge Text for %s', 'tplb'), $category->name),
                 function () use ($category) {
                     $this->category_badge_text_callback($category);
+                },
+                'tplb',
+                'tplb_general_settings'
+            );
+
+            add_settings_field(
+                "tplb_category_badge_color_{$category->term_id}",
+                sprintf(__('Badge Colors for %s', 'tplb'), $category->name),
+                function () use ($category) {
+                    $this->category_badge_color_callback($category);
                 },
                 'tplb',
                 'tplb_general_settings'
@@ -112,7 +145,6 @@ class TPLB_Admin {
         echo '<p class="description">' . sprintf(__('Set the default badge text for %s category.', 'tplb'), $category->name) . '</p>';
     }
 
-
     public function add_badge_text_meta_field() {
         global $post;
 
@@ -134,5 +166,31 @@ class TPLB_Admin {
         if (isset($_POST['tplb_badge_text'])) {
             update_post_meta($post_id, '_tplb_badge_text', sanitize_text_field($_POST['tplb_badge_text']));
         }
+    }
+
+    public function default_badge_text_callback() {
+        $value = get_option('tplb_default_badge_text', __('Default Badge', 'tplb'));
+        echo '<input type="text" id="tplb_default_badge_text" name="tplb_default_badge_text" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Set the default badge text for all products.', 'tplb') . '</p>';
+    }
+
+    public function category_badge_color_callback($category) {
+        $colors = get_option('tplb_category_badge_colors', []);
+        $bg_color = isset($colors[$category->term_id]['background']) ? $colors[$category->term_id]['background'] : '#000000';
+        $text_color = isset($colors[$category->term_id]['text']) ? $colors[$category->term_id]['text'] : '#FFFFFF';
+
+        echo '<label for="tplb_category_badge_bg_' . esc_attr($category->term_id) . '">' . __('Background Color:', 'tplb') . '</label>';
+        echo '<input type="color" id="tplb_category_badge_bg_' . esc_attr($category->term_id) . '" name="tplb_category_badge_colors[' . esc_attr($category->term_id) . '][background]" value="' . esc_attr($bg_color) . '" />';
+
+        echo '<label for="tplb_category_badge_text_' . esc_attr($category->term_id) . '">' . __('Text Color:', 'tplb') . '</label>';
+        echo '<input type="color" id="tplb_category_badge_text_' . esc_attr($category->term_id) . '" name="tplb_category_badge_colors[' . esc_attr($category->term_id) . '][text]" value="' . esc_attr($text_color) . '" />';
+    }
+
+    public function default_badge_colors_callback() {
+        $colors = get_option('tplb_default_badge_colors', ['background' => '#000000', 'text' => '#FFFFFF']);
+        echo '<label for="tplb_default_badge_bg">' . __('Background Color:', 'tplb') . '</label>';
+        echo '<input type="color" id="tplb_default_badge_bg" name="tplb_default_badge_colors[background]" value="' . esc_attr($colors['background']) . '" />';
+        echo '<label for="tplb_default_badge_text">' . __('Text Color:', 'tplb') . '</label>';
+        echo '<input type="color" id="tplb_default_badge_text" name="tplb_default_badge_colors[text]" value="' . esc_attr($colors['text']) . '" />';
     }
 }

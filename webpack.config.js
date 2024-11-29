@@ -5,6 +5,7 @@ module.exports = {
     entry: {
         main: './assets/js/main.js', // JavaScript entry
         adminStyles: './assets/css/admin-tailwind.css', // CSS-only entry
+        frontendStyles: './assets/css/frontend-tailwind.css',
     },
     output: {
         path: path.resolve(__dirname, 'build'),
