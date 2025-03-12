@@ -101,7 +101,7 @@ class TPLB_Admin {
         foreach (get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]) as $category) {
             add_settings_field(
                 "tplb_category_badge_text_{$category->term_id}",
-                sprintf(__('Default Badge Text for %s', 'tplb'), $category->name),
+                sprintf(__('Default Badge Text for %s (Leave empty to ignore category)', 'tplb'), $category->name),
                 function () use ($category) {
                     $this->category_badge_text_callback($category);
                 },

@@ -28,34 +28,30 @@ class TPLB_Frontend {
         global $product;
 
         $badge_display_option = get_option('tplb_badge_display_option', 'all');
-        $default_badge_text = get_option('tplb_default_badge_text', __('Default Badge', 'tplb'));
-        $default_colors = get_option('tplb_default_badge_colors', ['background' => '#000000', 'text' => '#FFFFFF']);
-        $custom_badge_text = get_post_meta($product->get_id(), '_tplb_badge_text', true);
+        $default_badge_text   = get_option('tplb_default_badge_text', __('Default Badge', 'tplb'));
+        $default_colors       = get_option('tplb_default_badge_colors', ['background' => '#000000', 'text' => '#FFFFFF']);
+        $custom_badge_text    = get_post_meta($product->get_id(), '_tplb_badge_text', true);
         $category_badge_texts = get_option('tplb_category_badge_texts', []);
         $category_badge_colors = get_option('tplb_category_badge_colors', []);
 
-        $badge_text = '';
-        $bg_color = $default_colors['background'];
-        $text_color = $default_colors['text'];
-
+        // If a custom badge is set, display it and ignore others.
         if (!empty($custom_badge_text)) {
-            $badge_text = $custom_badge_text;
+            echo '<span class="tplb-badge" style="background-color:' . esc_attr($default_colors['background']) . '; color:' . esc_attr($default_colors['text']) . ';">' . esc_html($custom_badge_text) . '</span>';
         } elseif ($badge_display_option === 'all') {
-            $badge_text = $default_badge_text;
+            // Display a single default badge for all products.
+            echo '<span class="tplb-badge" style="background-color:' . esc_attr($default_colors['background']) . '; color:' . esc_attr($default_colors['text']) . ';">' . esc_html($default_badge_text) . '</span>';
         } elseif ($badge_display_option === 'categories') {
             $categories = wp_get_post_terms($product->get_id(), 'product_cat', ['fields' => 'ids']);
             foreach ($categories as $category_id) {
                 if (isset($category_badge_texts[$category_id]) && !empty($category_badge_texts[$category_id])) {
                     $badge_text = $category_badge_texts[$category_id];
-                    $bg_color = $category_badge_colors[$category_id]['background'] ?? $bg_color;
-                    $text_color = $category_badge_colors[$category_id]['text'] ?? $text_color;
-                    break;
+                    $bg_color   = isset($category_badge_colors[$category_id]['background']) ? $category_badge_colors[$category_id]['background'] : $default_colors['background'];
+                    $text_color = isset($category_badge_colors[$category_id]['text']) ? $category_badge_colors[$category_id]['text'] : $default_colors['text'];
+
+                    // Echo each badge for the category.
+                    echo '<span class="tplb-badge" style="background-color:' . esc_attr($bg_color) . '; color:' . esc_attr($text_color) . ';">' . esc_html($badge_text) . '</span>';
                 }
             }
-        }
-
-        if (!empty($badge_text)) {
-            echo '<span class="tplb-badge" style="background-color:' . esc_attr($bg_color) . '; color:' . esc_attr($text_color) . ';">' . esc_html($badge_text) . '</span>';
         }
     }
 }
